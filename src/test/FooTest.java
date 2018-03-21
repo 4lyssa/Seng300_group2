@@ -20,7 +20,7 @@ public class FooTest {
 	@Before 
 	public void initializer(){
 		String BASEDIR = System.getProperty("user.dir")+"\\BASEDIR";
-		parser = ASTParser.newParser(AST.JLS8);
+		parser = ASTParser.newParser(AST.JLS9);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		
 		parser.setResolveBindings(true);
