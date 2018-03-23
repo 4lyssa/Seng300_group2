@@ -19,7 +19,7 @@ public class FooTest {
 	ASTParser parser;
 	@Before 
 	public void initializer(){
-		String BASEDIR = System.getProperty("user.dir")+"\\BASEDIR";
+		String BASEDIR = System.getProperty("user.dir");
 		parser = ASTParser.newParser(AST.JLS9);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		

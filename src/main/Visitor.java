@@ -58,7 +58,7 @@ public class Visitor extends ASTVisitor{
 		else
 			count = new Integer[] {0,1};
 		
-		if (node.resolveBinding().getQualifiedName() == "")
+		if (node.resolveBinding().getQualifiedName().equals(""))
 			map.put(node.resolveBinding().getName(), count);
 		else
 			map.put(node.resolveBinding().getQualifiedName(), count);
@@ -75,7 +75,7 @@ public class Visitor extends ASTVisitor{
 		else
 			count = new Integer[] {0,1};
 		
-		if (node.resolveBinding().getQualifiedName() == "")
+		if (node.resolveBinding().getQualifiedName().equals(""))
 			map.put(node.resolveBinding().getName(), count);
 		else
 			map.put(node.resolveBinding().getQualifiedName(), count);
@@ -93,7 +93,7 @@ public class Visitor extends ASTVisitor{
 			count = new Integer[] {0,1};
 		
 		
-		if (node.resolveBinding().getQualifiedName() == "")
+		if (node.resolveBinding().getQualifiedName().equals(""))
 			map.put(node.resolveBinding().getName(), count);
 		else
 			map.put(node.resolveBinding().getQualifiedName(), count);
@@ -111,7 +111,7 @@ public class Visitor extends ASTVisitor{
 			count = new Integer[] {0,1};
 		
 		
-		if (node.resolveBinding().getQualifiedName() == "")
+		if (node.resolveBinding().getQualifiedName().equals(""))
 			map.put(node.resolveBinding().getKey()+" (Anonymous Class)", count);
 		else
 			map.put(node.resolveBinding().getQualifiedName(), count);
