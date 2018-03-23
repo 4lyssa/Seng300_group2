@@ -31,7 +31,7 @@ public class Foo {
 			// SECOND: recursively search through directory (including TEMP folders) to retrieve all .java files
 			searchFiles(directory, javaFiles);
 		}
-		else if (directory.getName().endsWith(".jar")) {
+		else if (directory.isFile() && directory.getName().endsWith(".jar")) {
 			// FIRST: extract this jar file and any nested jars to TEMP folders in same directory as the corresponding jar file
 			try {
 				JarHandler.extractJars(directory);
@@ -47,7 +47,7 @@ public class Foo {
 		}
 		
 		else {
-			System.out.println("Please specify a pathname to a directory/jar file.");
+			System.out.println("Please specify a pathname to an existing directory/jar file.");
 			return; 
 		}
 		
