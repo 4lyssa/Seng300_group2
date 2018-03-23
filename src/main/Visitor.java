@@ -118,4 +118,20 @@ public class Visitor extends ASTVisitor{
 		
 		return super.visit(node);
 	}
+	
+	//Import Statement
+	@Override
+	public boolean visit(ImportDeclaration node) {
+		Integer[] count = map.get(node.resolveBinding().getName());
+		if(count != null) 
+			count[0]++;
+		else
+			count = new Integer[] {1,0};
+		
+		
+		map.put(node.resolveBinding().getName(), count);
+		
+		return super.visit(node);
+	}
+	
 }
