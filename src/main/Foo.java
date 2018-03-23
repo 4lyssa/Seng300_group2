@@ -55,13 +55,7 @@ public class Foo {
 			System.out.println("Please specify a pathname to a directory/jar file.");
 			return; 
 		}
-
-			// THIRD: delete all TEMP folders to prevent clutter
-			JarHandler.deleteTempFolders();
-			
-			
-			
-			
+		
 			Map<String, Integer[]> globalMap = new HashMap<String, Integer[]>();
 			
 			// FOURTH: parse java files
@@ -96,6 +90,9 @@ public class Foo {
 			System.out.println("-------------------------------------------------------------------------------------------------");	
 			System.out.format("%-50sDeclarations Found:%5d References Found:%5d\n", key, globalMap.get(key)[1], globalMap.get(key)[0]); 
 		}
+		
+		// Finally: delete all TEMP folders to prevent clutter
+		JarHandler.deleteTempFolders();
 		
 	}
 	
