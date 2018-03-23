@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.ArrayList; 
 
 public class JarHandler {
-
-	public static String BASEDIR = "D:\\Aaron\\Desktop\\foo"; // will be replaced by cmd line arg
 	
 	private static List<File> tempFolders = new ArrayList<File>(); // keep track of all TEMP folders to delete after processing all .java files
 	

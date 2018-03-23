@@ -41,6 +41,22 @@ public class FooTest {
 		parser = null;
 	}
 	@Test
+	public void localClassTest() {
+		parser.setSource("class OuterClass { public void m() { class LocalClass{}}}".toCharArray());
+		ASTNode node = parser.createAST(null);
+		vis = new Visitor();
+		node.accept(vis);
+		assertEquals((int)vis.getMap().get("LocalClass")[1], 1);
+	}
+	@Test
+	public void innerClassTest() {
+		parser.setSource("class OuterClass { class InnerClass{}}".toCharArray());
+		ASTNode node = parser.createAST(null);
+		vis = new Visitor();
+		node.accept(vis);
+		assertEquals((int)vis.getMap().get("OuterClass.InnerClass")[1], 1);
+	}
+	@Test
 	public void annotationTypeTest() {
 		parser.setSource("@interface Foo{version = 1}".toCharArray());
 		ASTNode node = parser.createAST(null);

@@ -13,14 +13,9 @@ import org.eclipse.jdt.core.dom.*;
 
 public class Foo {
 	/**
-	 * Points to a base directory of a machine</br>
-	 */
-	private static String BASEDIR = "\\some-path\\";
-	/**
-	 * Constructor, sets which testString will be examined </br>	 * 
+	 * Constructor, sets which directory or jar file will be examined </br>	 * 
 	 */
 	public Foo(String dir) {
-		Integer[] keyCount = new Integer[]{0,0}; // keyCount[0] is references, keyCount[1] is declarations
 		
 		File directory = new File(dir);
 		List<File> javaFiles = new ArrayList<File>();
