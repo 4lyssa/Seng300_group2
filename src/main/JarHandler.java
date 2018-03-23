@@ -12,21 +12,7 @@ import java.util.ArrayList;
 
 public class JarHandler {
 	
-	private static List<File> tempFolders = new ArrayList<File>(); // keep track of all TEMP folders to delete after processing all .java files
-	
-/*	
-	public static void main(String[] args) {
-		
-		File baseDir = new File(BASEDIR); 
-		
-		try {
-			extractJars(baseDir); // extract ALL jars recursively down from a base directory
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
-		
-	}
-*/	
+	private static List<File> tempFolders = new ArrayList<File>(); // keep track of all TEMP folders to delete after processing all .java files	
 	
 	/**
 	 * Recursively extract ALL jars contained within file
@@ -37,14 +23,14 @@ public class JarHandler {
 		if (!file.isDirectory()) { // if file is a simple file...
 			String filename = file.getName(); 
 			if (filename.toLowerCase().endsWith(".jar")) {
-				String noExtensionName = filename.substring(0, filename.length() - 4);  
-				File folder = new File(file.getParentFile().getAbsolutePath() + File.separator + noExtensionName + "TEMP"); 
-				if (folder.mkdir()) { // if new TEMP folder was created...
-					tempFolders.add(folder); 
+				String noExtensionName = filename.substring(0, filename.length() - 4); // cut off .jar from name of file
+				File folder = new File(file.getParentFile().getAbsolutePath() + File.separator + noExtensionName + "TEMP"); // make file out of path name to TEMP folder 
+				if (folder.mkdir()) { // if new TEMP folder was created (meaning a folder of same name didn't already exist)...
+					tempFolders.add(folder); // keep track of TEMP folder
 					JarFile jarFile = new JarFile(file); 
-					extractJarToFolder(jarFile, folder); 
+					extractJarToFolder(jarFile, folder); // extract contents of jar file into TEMP folder
 					jarFile.close();
-					extractJars(folder); 
+					extractJars(folder); // recursively search for and extract any jars found in TEMP folder
 				}
 				else {
 					System.out.println("ERROR - DIRECTORY ALREADY EXISTS!"); // debug message
@@ -54,30 +40,38 @@ public class JarHandler {
 		}
 		else { // if file is a directory... 
 			for (File f : file.listFiles()) {
-				extractJars(f); 
+				extractJars(f); // recursive search & extract
 			}
 		}
 			 
 	}
 	
+	/**
+	 * Extracts the contents of a jar file into a directory
+	 * @param jarFile
+	 * jar file to extract
+	 * @param folder
+	 * folder to extract to
+	 * @throws IOException
+	 */
 	public static void extractJarToFolder(JarFile jarFile, File folder) throws IOException {
-		if (!folder.isDirectory()) {
+		if (!folder.isDirectory()) { // if caller specifies an invalid folder, do nothing
 			return; 
 		}
 		
-		Enumeration<JarEntry> contents = jarFile.entries();
-		while (contents.hasMoreElements()) {
-			JarEntry elem = contents.nextElement();
-			File copy = new File(folder.getAbsolutePath() + File.separator + elem.getName());
+		Enumeration<JarEntry> contents = jarFile.entries(); // retrieve all contents of the jar file
+		while (contents.hasMoreElements()) { // while there are more contents to deal with
+			JarEntry elem = contents.nextElement(); // deal with next element
+			File copy = new File(folder.getAbsolutePath() + File.separator + elem.getName()); // make a copy of element
 			if (elem.isDirectory()) {
-				copy.mkdir();
+				copy.mkdir(); // make a new directory for this directory element 
 				continue; 
 			}
 			
-			InputStream input = jarFile.getInputStream(elem); 
-			FileOutputStream output = new FileOutputStream(copy); // write to folder
-			while (input.available() > 0) { // there are remaining bytes to read 
-				output.write(input.read()); // read next byte from elem and write to file copy 
+			InputStream input = jarFile.getInputStream(elem); // get input stream of bytes for the element
+			FileOutputStream output = new FileOutputStream(copy); // set output stream to write to file copy
+			while (input.available() > 0) { // while there are remaining bytes to read from element
+				output.write(input.read()); // read next byte from element and write it to file copy 
 			}
 			output.close();
 			input.close();
