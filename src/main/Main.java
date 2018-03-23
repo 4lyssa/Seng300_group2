@@ -11,11 +11,11 @@ import java.util.Map;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.*;
 
-public class Foo {
+public class Main {
 	/**
 	 * Constructor, sets which directory or jar file will be examined </br>	 * 
 	 */
-	public Foo(String dir) {
+	public Main(String dir) {
 		
 		File directory = new File(dir); // make file out of abstract path name to directory/jar
 		List<File> javaFiles = new ArrayList<File>(); // List of all .java files found
@@ -154,10 +154,10 @@ public class Foo {
 	public static void main(String[] args) {
 		
 		if (args.length == 1) {
-			new Foo(args[0]); // treat the argument as a path
+			new Main(args[0]); // treat the argument as a path
 		}
 		else {
-			System.out.println("Usage: java Foo <directoryPath or jarPath>"); // error message to direct user how to properly run program
+			System.out.println("Usage: java Main <directoryPath or jarPath>"); // error message to direct user how to properly run program
 		}
 		
 	}
