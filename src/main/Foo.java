@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,28 +19,70 @@ public class Foo {
 	/**
 	 * Constructor, sets which testString will be examined </br>	 * 
 	 */
-	public Foo(String key, String dir) {
+	public Foo(String dir) {
 		Integer[] keyCount = new Integer[]{0,0}; // keyCount[0] is references, keyCount[1] is declarations
 		
 		File directory = new File(dir);
 		List<File> javaFiles = new ArrayList<File>();
 		
-		if (directory.getName().endsWith(".jar")) {
-			// Something else with jar files
-		}
-		else if (directory.isDirectory()) {
-			searchFiles(directory, javaFiles);
+		if (directory.isDirectory()) {
+			// FIRST: recursively extract all jars in this directory to TEMP folders in same directory as the corresponding jar file
+			try {
+				JarHandler.extractJars(directory);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}	
 			
+			// SECOND: recursively search through directory (including TEMP folders) to retrieve all .java files
+			searchFiles(directory, javaFiles);
+		}
+		else if (directory.getName().endsWith(".jar")) {
+			// FIRST: extract this jar file and any nested jars to TEMP folders in same directory as the corresponding jar file
+			try {
+				JarHandler.extractJars(directory);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}	
+			
+			// SECOND: recursively search through jar directory (including TEMP folders) to retrieve all .java files
+			String noExtensionName = dir.substring(0, dir.length() - 4); // cut off the .jar from end of dir   
+			String jarDirectoryPath = noExtensionName + "TEMP"; // add TEMP to end of path to get path to created TEMP folder 
+			File jarDirectory = new File(jarDirectoryPath);  
+			searchFiles(jarDirectory, javaFiles);
+		}
+		
+		else {
+			System.out.println("Please specify a pathname to a directory/jar file.");
+			return; 
+		}
+
+			// THIRD: delete all TEMP folders to prevent clutter
+			JarHandler.deleteTempFolders();
+			
+			
+			
+			
+			Map<String, Integer[]> globalMap = new HashMap<String, Integer[]>();
+			
+			// FOURTH: parse java files
 			int i = 0;
 			while (i < javaFiles.size()) {
 				File javaFile = javaFiles.get(i);
-				System.out.println("\n" + javaFile + "\n");
+				//System.out.println("\n" + javaFile + "\n");
 				try {
 					String str = String.join(" ", Files.readAllLines(javaFile.toPath()));
-					Integer[] result = visit(parse(str, javaFile.getParent()), key);
-					if(result != null) {
-						keyCount[0] += result[0];
-						keyCount[1] += result[1];
+					Map<String, Integer[]> localMap = visit(parse(str, javaFile.getParent()));
+					for (String key : localMap.keySet()) {
+						Integer[] globalCount = globalMap.get(key);
+						Integer[] localCount = localMap.get(key); 
+						if(globalCount != null) {// if key exists globally
+							globalCount[0] += localCount[0]; 
+							globalCount[1] += localCount[1];
+						}	
+						else {
+							globalCount = new Integer[] {localCount[0], localCount[1]}; 
+						}
+						globalMap.put(key, globalCount);
 					}
 				} 
 				catch (IOException e) {
@@ -47,14 +90,13 @@ public class Foo {
 				}
 			i++;
 			}
+			
+		// Print info for EVERY type found:
+		for (String key : globalMap.keySet()) {
+			System.out.println("-------------------------------------------------------------------------------------------------");	
+			System.out.format("%-50sDeclarations Found:%5d References Found:%5d\n", key, globalMap.get(key)[1], globalMap.get(key)[0]); 
 		}
-		else {
-			System.out.println("Please specify pathname to a directory/jar file and a qualified name of a Java type");
-		}
-
-		// Print specified qualified name (key)
-		System.out.println("-------------------------------------------------------------------------------------------------");
-		System.out.format("%-50sDeclarations Found:%5d References Found:%5d\n", key, keyCount[1], keyCount[0]);
+		
 	}
 	
 	/**
@@ -108,34 +150,22 @@ public class Foo {
 	 * @return Integer[0] and Integer[1]
 	 * Declarations[1] and references[0] of the specified qualified name type for that node
 	 */
-	public Integer[] visit(ASTNode node, String key) {
+	public Map<String, Integer[]> visit(ASTNode node) {
 		Visitor vis = new Visitor();
 		CompilationUnit cu = (CompilationUnit)node;
 		cu.accept(vis);
 		Map<String, Integer[]> map = vis.getMap();
-		for(String otherKey: map.keySet()) {
-			System.out.format("%-50sDeclarations Found:%5d References Found:%5d\n", otherKey, map.get(otherKey)[1], map.get(otherKey)[0]);
-		}
-		return map.get(key);
+		return map; 
 	}
 	
 	public static void main(String[] args) {
-		// Use base directory if only one argument (Qualified Name) is given
+		
 		if (args.length == 1) {
-			BASEDIR = System.getProperty("user.dir")+"\\BASEDIR";
-			new Foo(args[0], BASEDIR);
+			new Foo(args[0]);
 		}
-		// Change base directory if two arguments are given; error otherwise
-		else if (args.length == 2){
-			try {
-				BASEDIR = args[0];
-				new Foo(args[1], BASEDIR);
-			}
-			catch (NullPointerException e) {
-				System.out.println("Please specify pathname to a directory and a qualified name of a Java type");
-			}
+		else {
+			System.out.println("Usage: java Foo <directoryPath or jarPath>");
 		}
-		else
-			System.out.println("Please specify pathname to a directory and a qualified name of a Java type");
+		
 	}
 }
