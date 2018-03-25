@@ -1,17 +1,22 @@
+//
+
 package main;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.io.*; 
 
-public class Outer {
+public class Outer { 
+
+	class Inner {}
 	
 	int x;
 	
 	public int m() {
 		
 		class Local {
-			Local[] l2; 
+			
+			Local[][] l2; 
 		}	
 		
 		Local l3; 
@@ -28,9 +33,11 @@ public class Outer {
 	
 	Map<String[], int[]> map = new HashMap<String[], int[]>(); 
 	
-	Map<String, Integer[]>[] mapArr; 
+	Map<String, Integer[]>[][] mapArr; 
 	
-	int[][] xss; 
+	String[][] xss; 
 	
+	int[][][] xsss;
 	
+	int[] b = new int[]{1, 2}; 
 }
