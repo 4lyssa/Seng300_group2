@@ -1,12 +1,14 @@
 package main;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.*;
@@ -57,8 +59,8 @@ public class Main {
 		while (i < javaFiles.size()) {
 			File javaFile = javaFiles.get(i); // get next java file in list
 			try {
-				String str = String.join(" ", Files.readAllLines(javaFile.toPath())); // concatenate all lines of file into a source string
-				Map<String, Integer[]> localMap = visit(parse(str, javaFile.getParent())); // 1. parse the source string into an AST. 
+				String source = readFile(javaFile); // concatenate all lines of file into a source string
+				Map<String, Integer[]> localMap = visit(parse(source, javaFile.getParent())); // 1. parse the source string into an AST. 
 																						   // 2. visit every node of the AST to find References/Declarations of any type
 																						   // 3. store the returned map of number of refs/decs of each type found in file
 				for (String key : localMap.keySet()) { // loop through every type in local map
@@ -89,6 +91,17 @@ public class Main {
 		// Finally: delete all TEMP folders to prevent clutter
 		JarHandler.deleteTempFolders();
 		
+	}
+	
+	public String readFile(File file) throws FileNotFoundException
+	{
+	    Scanner scanner = new Scanner(file);
+	    String source = "";
+	    while (scanner.hasNextLine()) {
+	    	source += scanner.nextLine() + "\n";
+	    } 
+	    scanner.close();
+	    return source;
 	}
 	
 	/**
