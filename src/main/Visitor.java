@@ -22,14 +22,15 @@ public class Visitor extends ASTVisitor{
 	@Override
 	public boolean visit(PrimitiveType node) {
 		if(!node.toString().equals("void")) {
-			Integer[] count = map.get(node.resolveBinding().getQualifiedName());
+			String key = node.resolveBinding().getQualifiedName(); 
+			Integer[] count = map.get(key);
 			
 			if(count != null) 
 				count[0]++;
 			else
 				count = new Integer[] {1,0};
 			
-			map.put(node.resolveBinding().getQualifiedName(), count);
+			map.put(key, count);
 		}
 		return super.visit(node);
 	}
@@ -37,6 +38,10 @@ public class Visitor extends ASTVisitor{
 	//Visits when there is a SimpleType type (non-Primitive types like java.lang.String)
 	@Override
 	public boolean visit(SimpleType node) {	
+		if (node.resolveBinding().isParameterizedType()) { // handle parameterized type in its own visit method below
+			return super.visit(node); 
+		}
+		
 		String key = node.resolveBinding().getQualifiedName();
 		if (key.equals(""))
 			key = node.resolveBinding().getName();
@@ -48,7 +53,6 @@ public class Visitor extends ASTVisitor{
 			count = new Integer[] {1,0};
 		
 		map.put(key, count);
-		
 		return super.visit(node);
 	}
 	
@@ -125,15 +129,15 @@ public class Visitor extends ASTVisitor{
 	//Import Statement
 	@Override
 	public boolean visit(ImportDeclaration node) {
-		Integer[] count = map.get(node.resolveBinding().getName());
-		if(count != null) 
-			count[0]++;
-		else
-			count = new Integer[] {1,0};
-		
-		
-		map.put(node.resolveBinding().getName(), count);
-		
+		if (!node.isOnDemand()) { // i.e. not of the form package.*; 
+			String key = node.getName().toString();  
+			Integer[] count = map.get(key);
+			if(count != null) 
+				count[0]++;
+			else
+				count = new Integer[] {1,0};
+			map.put(key, count);
+		}
 		return super.visit(node);
 	}
 	
@@ -155,5 +159,47 @@ public class Visitor extends ASTVisitor{
 		return super.visit(node);
 		
 	}	
+	
+	@Override
+	public boolean visit(ParameterizedType node) {
+		String key = node.resolveBinding().getTypeDeclaration().getQualifiedName(); 
+		if (key.equals(""))
+			key = node.resolveBinding().getTypeDeclaration().getName(); 
+		Integer[] count = map.get(key);
+		if(count != null) 
+			count[0]++; // increment reference count
+		else
+			count = new Integer[] {1,0};
+		map.put(key, count); 
+		return super.visit(node);
+		
+	}	
+
+	@Override
+	public boolean visit(ArrayType node) {	
+		String key; 
+		if (node.resolveBinding().getElementType().isLocal()) {
+			key = node.resolveBinding().getElementType().getName() + "[]"; 
+		}
+		else if (node.resolveBinding().getElementType().isParameterizedType()) {
+			key = node.resolveBinding().getElementType().getTypeDeclaration().getQualifiedName();
+			if (key.equals(""))
+				key = node.resolveBinding().getElementType().getTypeDeclaration().getName();
+			key += "[]"; 
+		}
+		else {
+			key = node.resolveBinding().getQualifiedName(); 
+			if (key.equals(""))
+				key = node.resolveBinding().getName(); 
+		}
+		Integer[] count = map.get(key);
+		if(count != null) 
+			count[0]++; // increment reference count
+		else
+			count = new Integer[] {1,0};
+		map.put(key, count); 
+		return super.visit(node);
+		
+	}
 	
 }
