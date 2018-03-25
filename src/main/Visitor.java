@@ -179,25 +179,30 @@ public class Visitor extends ASTVisitor{
 	public boolean visit(ArrayType node) {	
 		String key; 
 		if (node.resolveBinding().getElementType().isLocal()) {
-			key = node.resolveBinding().getElementType().getName() + "[]"; 
+			key = node.resolveBinding().getElementType().getName(); // name without brackets
 		}
 		else if (node.resolveBinding().getElementType().isParameterizedType()) {
-			key = node.resolveBinding().getElementType().getTypeDeclaration().getQualifiedName();
+			key = node.resolveBinding().getElementType().getTypeDeclaration().getQualifiedName(); // name without brackets
 			if (key.equals(""))
-				key = node.resolveBinding().getElementType().getTypeDeclaration().getName();
-			key += "[]"; 
+				key = node.resolveBinding().getElementType().getTypeDeclaration().getName(); // name without brackets 
 		}
 		else {
-			key = node.resolveBinding().getQualifiedName(); 
+			key = node.resolveBinding().getElementType().getQualifiedName(); // name without brackets 
 			if (key.equals(""))
-				key = node.resolveBinding().getName(); 
+				key = node.resolveBinding().getElementType().getName(); // name without brackets 
 		}
-		Integer[] count = map.get(key);
-		if(count != null) 
-			count[0]++; // increment reference count
-		else
-			count = new Integer[] {1,0};
-		map.put(key, count); 
+		
+		int dimensions = node.getDimensions(); 
+		for (int i = 0; i < dimensions; i++) {
+			key += "[]";
+			Integer[] count = map.get(key);
+			if(count != null) 
+				count[0]++; // increment reference count
+			else
+				count = new Integer[] {1,0};
+			map.put(key, count); 
+		}
+		
 		return super.visit(node);
 		
 	}
