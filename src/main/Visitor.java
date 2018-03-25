@@ -24,12 +24,10 @@ public class Visitor extends ASTVisitor{
 		if(!node.toString().equals("void")) {
 			String key = node.resolveBinding().getQualifiedName(); 
 			Integer[] count = map.get(key);
-			
 			if(count != null) 
 				count[0]++;
 			else
 				count = new Integer[] {1,0};
-			
 			map.put(key, count);
 		}
 		return super.visit(node);
@@ -41,17 +39,14 @@ public class Visitor extends ASTVisitor{
 		if (node.resolveBinding().isParameterizedType()) { // handle parameterized type in its own visit method below
 			return super.visit(node); 
 		}
-		
 		String key = node.resolveBinding().getQualifiedName();
 		if (key.equals(""))
 			key = node.resolveBinding().getName();
-		
 		Integer[] count = map.get(key); 
 		if(count != null) 
 			count[0]++;
 		else
 			count = new Integer[] {1,0};
-		
 		map.put(key, count);
 		return super.visit(node);
 	}
@@ -59,70 +54,60 @@ public class Visitor extends ASTVisitor{
 	//1. AnnotationType declaration
 	@Override
 	public boolean visit(AnnotationTypeDeclaration node) {
-		Integer[] count = map.get(node.resolveBinding().getQualifiedName());
+		String key = node.resolveBinding().getQualifiedName();
+		if (key.equals(""))
+			key = node.resolveBinding().getName();
+		Integer[] count = map.get(key);
 		if(count != null) 
 			count[1]++;
 		else
 			count = new Integer[] {0,1};
-		
-		if (node.resolveBinding().getQualifiedName().equals(""))
-			map.put(node.resolveBinding().getName(), count);
-		else
-			map.put(node.resolveBinding().getQualifiedName(), count);
-		
+		map.put(key, count);		
 		return super.visit(node);
 	}
 	
 	//2. Enum declaration
 	@Override
 	public boolean visit(EnumDeclaration node) {
-		Integer[] count = map.get(node.resolveBinding().getQualifiedName());
+		String key = node.resolveBinding().getQualifiedName();
+		if (key.equals(""))
+			key = node.resolveBinding().getName();
+		Integer[] count = map.get(key);
 		if(count != null) 
 			count[1]++;
 		else
 			count = new Integer[] {0,1};
-		
-		if (node.resolveBinding().getQualifiedName().equals(""))
-			map.put(node.resolveBinding().getName(), count);
-		else
-			map.put(node.resolveBinding().getQualifiedName(), count);
-		
+		map.put(key, count); 
 		return super.visit(node);
 	}
 	
 	//3-4. Class / Interface declaration
 	@Override
 	public boolean visit(TypeDeclaration node) {
-		Integer[] count = map.get(node.resolveBinding().getQualifiedName());
+		String key = node.resolveBinding().getQualifiedName();
+		if (key.equals(""))
+			key = node.resolveBinding().getName();
+		Integer[] count = map.get(key);
 		if(count != null) 
 			count[1]++;
 		else
 			count = new Integer[] {0,1};
-		
-		
-		if (node.resolveBinding().getQualifiedName().equals(""))
-			map.put(node.resolveBinding().getName(), count);
-		else
-			map.put(node.resolveBinding().getQualifiedName(), count);
-		
+		map.put(key, count); 
 		return super.visit(node);
 	}
 	
 	// 5. Anonymous Class declaration
 	@Override
 	public boolean visit(AnonymousClassDeclaration node) {
-		Integer[] count = map.get(node.resolveBinding().getQualifiedName());
+		String key = node.resolveBinding().getQualifiedName();
+		if (key.equals(""))
+			key = node.resolveBinding().getKey() + " (Anonymous Class)";  
+		Integer[] count = map.get(key);
 		if(count != null) 
 			count[1]++;
 		else
 			count = new Integer[] {0,1};
-		
-		
-		if (node.resolveBinding().getQualifiedName().equals(""))
-			map.put(node.resolveBinding().getKey()+" (Anonymous Class)", count);
-		else
-			map.put(node.resolveBinding().getQualifiedName(), count);
-		
+		map.put(key, count); 		
 		return super.visit(node);
 	}
 	
@@ -155,9 +140,7 @@ public class Visitor extends ASTVisitor{
 				count = new Integer[] {1,0};
 			map.put(key, count); 
 		}
-		
 		return super.visit(node);
-		
 	}	
 	
 	@Override
@@ -172,7 +155,6 @@ public class Visitor extends ASTVisitor{
 			count = new Integer[] {1,0};
 		map.put(key, count); 
 		return super.visit(node);
-		
 	}	
 
 	@Override
@@ -191,7 +173,6 @@ public class Visitor extends ASTVisitor{
 			if (key.equals(""))
 				key = node.resolveBinding().getElementType().getName(); // name without brackets 
 		}
-		
 		int dimensions = node.getDimensions(); 
 		for (int i = 0; i < dimensions; i++) {
 			key += "[]";
@@ -202,9 +183,7 @@ public class Visitor extends ASTVisitor{
 				count = new Integer[] {1,0};
 			map.put(key, count); 
 		}
-		
 		return super.visit(node);
-		
 	}
 	
 }
