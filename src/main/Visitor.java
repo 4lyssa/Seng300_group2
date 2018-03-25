@@ -7,7 +7,7 @@ import org.eclipse.jdt.core.dom.*;
 
 //Modified ASTVisitor
 /**
- * AST Visitor for only visiting Declarations
+ * AST Visitor for visiting References & Declarations
  * count[1] is declarations
  * count[0] is references
  */
@@ -37,14 +37,17 @@ public class Visitor extends ASTVisitor{
 	//Visits when there is a SimpleType type (non-Primitive types like java.lang.String)
 	@Override
 	public boolean visit(SimpleType node) {	
-		Integer[] count = map.get(node.resolveBinding().getQualifiedName());
+		String key = node.resolveBinding().getQualifiedName();
+		if (key.equals(""))
+			key = node.resolveBinding().getName();
 		
+		Integer[] count = map.get(key); 
 		if(count != null) 
 			count[0]++;
 		else
 			count = new Integer[] {1,0};
 		
-		map.put(node.resolveBinding().getQualifiedName(), count);
+		map.put(key, count);
 		
 		return super.visit(node);
 	}
@@ -133,5 +136,24 @@ public class Visitor extends ASTVisitor{
 		
 		return super.visit(node);
 	}
+	
+	//Constructor declaration is a reference to its class
+	@Override
+	public boolean visit(MethodDeclaration node) {
+		if (node.isConstructor()) {
+			String key = node.resolveBinding().getDeclaringClass().getQualifiedName();
+			if (key.equals(""))
+				key = node.resolveBinding().getDeclaringClass().getName(); 
+			Integer[] count = map.get(key);
+			if(count != null) 
+				count[0]++; // increment reference count
+			else
+				count = new Integer[] {1,0};
+			map.put(key, count); 
+		}
+		
+		return super.visit(node);
+		
+	}	
 	
 }
